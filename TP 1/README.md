@@ -10,19 +10,18 @@
 - `make` **(sa peut prendre du temps)**
 - `sudo make install`
 
-  ## Félicitation, vous avez installer Apache sur votre machine
+## Félicitation, vous avez installer Apache sur votre machine
 
-  ### Maintenant, on vérifie le statue
+### Maintenant, on vérifie le statue
+#### Dans le terminal tapper `ps aux | grep httpd`
+### Si vous voyez écrit HTTPD sur plusieurs ligne, sa fonctionne mais pour en être certain :
+#### Ouvrez un navigateur et écriver `http://localhost`
+### Si une page s'ouvre et écrit : **It Works!** alors Apache fonctionne bien sur votre appareils.
 
-  #### Dans le terminal tapper `ps aux | grep httpd`
-  ### Si vous voyez écrit HTTPD sur plusieurs ligne, sa fonctionne mais pour en être certain :
-  #### Ouvrez un navigateur et écriver `http://localhost`
-  ### Si une page s'ouvre et écrit : **It Works!** alors Apache fonctionne bien sur votre appareils.
-
-  ## Pour configurer le serveur
-  ### tapper la commande
-  `nano index.html`
-  ### Ensuite rentrez ce code :
+## Pour configurer le serveur
+### tapper la commande
+- `nano index.html`
+### Ensuite rentrez ce code :
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +61,7 @@
 
 ### Ensuite :
 - CTRL + O puis ENTREE pour sauvegarder
-- CTRL + X pour quitter le nano
+- `CTRL + X pour quitter le nano`
 
 ### Vous devez maintenant ouvrir votre navigateur et lancer l'adresse suivant
 - `http://localhost`
@@ -75,9 +74,36 @@
 - `sudo nano /usr/local/apache2/conf/httpd.conf`
 #### Chercher la ligne "Listen 80" <img width="103" height="19" alt="image" src="https://github.com/user-attachments/assets/fe756301-feba-4ed1-a611-9ca2e1a93e61" />
 ### Modifier la ligne pour la transformer en "***Listen 8080***"
-- CTRL + O  puis ENTREE pour sauvegarder
-- CTRL + X pour quitter le nano
+- `CTRL + O  puis ENTREE pour sauvegarder`
+- `CTRL + X pour quitter le nano`
 ### Il faut redémarrer le système sudo avec la commande `sudo /usr/local/apache2/bin/apachectl restart`
 ### Vous pouvez lancer l'adresse "http://localhost:8080` sur votre navigateur
 
 # Etape 2 : Configuration du pare-feu avec  UFW
+## Configurer le pare-feux
+### Autoriser uniquement les connexions sur les ports du serveur
+- `sudo ufw allow 8080/tcp`
+- `sudo ufw allow 22/tcp`
+### Bloquer toutes les autres connexions entrantes
+- `sudo ufw default deny incoming`
+- `sudo ufw default allow outgoing`
+### Testez
+- `nc -zv <IP_de_la_machine> 21` **( devrais être bloquer )**
+- `nc -zv <IP_de_la_machine> 8080` **( devrais être autoriser )**
+
+# Etape 3 : Sécurisation des connexions SSH
+## Accepter uniquement les connexions via clefs SSH
+### Générer une paire de clefs
+- `ssh-keygen -t rsa -b 4096`
+### Copier la clef publique vers la VM
+- `ssh-copy-id utilisateur@IP_VM`
+### Vérifier que la clef est bien ajoutée
+- `cat ~/.ssh/authorized_keys`
+## Désactiver le login par mot de passe et l’accès root
+### Éditer le fichier de configuration SSH
+- `sudo nano /etc/ssh/sshd_config`
+### Modifier ou ajouter les lignes suivantes :
+- `PermitRootLogin no`
+- `PasswordAuthentication no`
+### Redémarrer le service SSH
+- `sudo systemctl restart ssh`
